@@ -20,6 +20,9 @@ jobs:
             sudo apt update
             sudo apt install -y snapd
             sudo snap install gh
+            git config --global user.name "Suresh Thelkar"
+            git config --global user.email "sthelkar@microsoft.com"
+
       - name: Get Reviewers
         id: reviewers
         run: |
