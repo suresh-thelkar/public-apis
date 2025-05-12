@@ -18,6 +18,21 @@ jobs:
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
+      - name: Install GitHub CLI from Snap
+        run: |
+            sudo apt update
+            sudo apt install -y snapd
+            sudo snap install gh
+
+      - name: Authenticate GitHub CLI
+        run: |
+            echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+      - name: Get Reviewers
+        id: reviewers
+        run: |
+          PR_NUMBER=$(jq -r '.pull_request.number' < "$GITHUB_EVENT_PATH")
+          REVIEWERS=$(gh pr view $PR_NUMBER --json reviews --jq '.reviews[].author.login')
+          echo "REVIEWERS=$REVIEWERS" >> $GITHUB_ENV
 
       - name: Check if PR author is in the specified list
         id: check-author
