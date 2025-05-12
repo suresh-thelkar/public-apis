@@ -20,8 +20,16 @@ jobs:
         run: |
           echo "Reading event payload..."
           cat $GITHUB_EVENT_PATH
-          REVIEWER=$(jq -r '.pull_request.requested_reviewers.login' < $GITHUB_EVENT_PATH)
-          echo "Reviewer: $REVIEWER"
+          if jq -e '.pull_request.requested_reviewers | length > 0' < $GITHUB_EVENT_PATH > /dev/null; then
+            REVIEWER=$(jq -r '.pull_request.requested_reviewers[0].login' < $GITHUB_EVENT_PATH)
+            echo "Reviewer: $REVIEWER"
+          else
+            echo "No reviewers found in the pull request."
+          fi
+      - name: Display commit IDs of this PR
+        run: |
+          echo "Commit IDs in this PR:"
+          jq -r '.pull_request.commits_url' < $GITHUB_EVENT_PATH | xargs curl -s | jq -r '.[].sha'
       - name: Print pull request event data
         run: |
             echo "Pull Request Event Data:"
