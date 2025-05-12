@@ -15,31 +15,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Install GitHub CLI from Snap
+      - name: Get PR Reviewer
+        if: github.event.pull_request.merged == true
         run: |
-            sudo apt update
-            sudo apt install -y snapd
-            sudo snap install gh
-            git config --global user.name "Suresh Thelkar"
-            git config --global user.email "sthelkar@microsoft.com"
-
-      - name: Get Reviewers
-        id: reviewers
-        run: |
-          PR_NUMBER=$(jq -r '.pull_request.number' < "$GITHUB_EVENT_PATH")
-          REVIEWERS=$(gh pr view $PR_NUMBER --json reviews --jq '.reviews[].author.login')
-          echo "REVIEWERS=$REVIEWERS" >> $GITHUB_ENV
-
-      - name: Check if PR author is in the specified list
-        id: check-author
-        run: |
-          AUTHOR_LIST=("suresh-thelkar" "author2" "author3") # Replace with actual authors
-          PR_AUTHOR=$(jq -r '.pull_request.user.login' < "$GITHUB_EVENT_PATH")
-          if [[ " ${AUTHOR_LIST[@]} " =~ " ${PR_AUTHOR} " ]]; then
-            echo "::set-output name=update_author::true"
-          else
-            echo "::set-output name=update_author::false"
-          fi
+          echo "Reading event payload..."
+          cat $GITHUB_EVENT_PATH
+          REVIEWER=$(jq -r '.pull_request.requested_reviewers.login' < $GITHUB_EVENT_PATH)
+          echo "Reviewer: $REVIEWER"
       - name: Print pull request event data
         run: |
             echo "Pull Request Event Data:"
