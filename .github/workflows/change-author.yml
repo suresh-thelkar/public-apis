@@ -29,7 +29,10 @@ jobs:
           else
             echo "::set-output name=update_author::false"
           fi
-
+      - name: Print pull request event data
+        run: |
+            echo "Pull Request Event Data:"
+            cat $GITHUB_EVENT_PATH | jq '.pull_request'
       - name: Update commit author
         if: steps.check-author.outputs.update_author == 'true'
         run: |
