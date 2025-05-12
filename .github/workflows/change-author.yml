@@ -15,13 +15,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Install GitHub CLI from Snap
-        run: |
-            sudo apt update
-            sudo apt install -y snapd
-            sudo snap install gh
-            git config --global user.name "Suresh Thelkar"
-            git config --global user.email "sthelkar@microsoft.com"
       - name: Get PR Reviewer
         if: github.event.pull_request.merged == true
         run: |
