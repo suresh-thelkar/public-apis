@@ -33,18 +33,3 @@ jobs:
         run: |
             echo "Pull Request Event Data:"
             cat $GITHUB_EVENT_PATH | jq '.pull_request'
-      - name: Update commit author
-        if: steps.check-author.outputs.update_author == 'true'
-        run: |
-          REVIEWER=$(jq -r '.pull_request.requested_reviewers[0].login' < "$GITHUB_EVENT_PATH")
-          REVIEWER_EMAIL=$(jq -r '.pull_request.requested_reviewers[0].email' < "$GITHUB_EVENT_PATH")
-          git config --global user.name "$REVIEWER"
-          git config --global user.email "$REVIEWER_EMAIL"
-          git filter-branch -f --env-filter \
-            "export GIT_AUTHOR_NAME=\"$REVIEWER\";\n             export GIT_AUTHOR_EMAIL=\"$REVIEWER_EMAIL\";" HEAD
-          git push --force
-
-      - name: Push changes
-        if: steps.check-author.outputs.update_author == 'true'
-        run: |
-          git push --force
