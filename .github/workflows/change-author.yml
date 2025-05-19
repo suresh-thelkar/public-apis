@@ -30,6 +30,19 @@ jobs:
         run: |
           echo "Commit IDs in this PR:"
           jq -r '.pull_request.commits_url' < $GITHUB_EVENT_PATH | xargs curl -s | jq -r '.[].sha'
+      - name: Get PR Commits
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          REPO_OWNER=${{ github.repository_owner }}
+          REPO_NAME=${{ github.event.repository.name }}
+          
+          # Fetch the commits of the PR using GitHub API
+          COMMITS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/pulls/$PR_NUMBER/commits" | jq -r '.[].sha')
+          
+          echo "Commit IDs: $COMMITS"
       - name: Print pull request event data
         run: |
             echo "Pull Request Event Data:"
